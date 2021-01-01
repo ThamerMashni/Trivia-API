@@ -27,7 +27,7 @@ class TriviaTestCase(unittest.TestCase):
     
     def tearDown(self):
         """Executed after reach test"""
-
+        
     """
     TODO
     Write at least one test for each test for successful operation and for expected errors.
@@ -47,15 +47,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'],True)
         self.assertEqual(len(data['questions']),10)
-        self.assertEqual(data['total_questions'],19)
         self.assertEqual(len(data['categories']),6)   
 
     def test_delete_question(self):
-        res = self.client().delete('/questions/10')
+        res = self.client().delete('/questions/1000')
         data=json.loads(res.data)
         
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'],True)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'],False)
     
     def test_new_question(self):
         res = self.client().post('/questions',json={
@@ -67,7 +66,20 @@ class TriviaTestCase(unittest.TestCase):
         data=json.loads(res.data)
         
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'],True)
+        self.assertEqual(data['success'],True) 
+        self.assertEqual(data['newQuestion'],"Q1")  
+        
+    def test_422_new_question(self):
+        res = self.client().post('/questions',json={
+            'question': "Q1",
+            'answer': 'answer1',
+            'category':1
+        })
+        data=json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'],False) 
+        self.assertEqual(data['message'],"unprocessable") 
         
     def test_search(self):
         res = self.client().post('/questions/search',json={
@@ -96,10 +108,10 @@ class TriviaTestCase(unittest.TestCase):
             'previous_questions':{}
         })
         data=json.loads(res.data)
-        
+
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'],True)
-        self.assertEqual(len(data['questions']),4)
+        self.assertEqual(data['category'],2)
     
 
 # Make the tests conveniently executable
