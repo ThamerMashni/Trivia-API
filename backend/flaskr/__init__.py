@@ -89,6 +89,8 @@ def create_app(test_config=None):
       for category in categories:
         formated_categories[category.id] = category.type
       
+      if len(current_questions)== 0 :
+        abort(404)
 
       return jsonify({
         'success': True,
@@ -173,9 +175,12 @@ def create_app(test_config=None):
     try:
       form = request.get_json()
       term = form.get('searchTerm')
+      if(term is ''):
+        abort(404)
 
       selection = Question.query.filter(Question.question.ilike('%{}%'.format(term))).all()
       current_questions = paginate_questions(request, selection)
+
 
       return jsonify({
         "success": True,
@@ -199,6 +204,9 @@ def create_app(test_config=None):
     try:
       selection = Question.query.filter(Question.category == category_id).all()
       current_questions = paginate_questions(request,selection)
+
+      if(len(current_questions)==0):
+        abort(404)
 
       return jsonify({
         'success': True,
